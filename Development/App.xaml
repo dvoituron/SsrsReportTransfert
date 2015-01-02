@@ -1,0 +1,9 @@
+﻿<Application x:Class="ReportTransfert.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewmodel="clr-namespace:ReportTransfert.Data"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <viewmodel:ViewModelLocator x:Key="Locator" />
+    </Application.Resources>
+</Application>

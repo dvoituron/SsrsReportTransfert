@@ -1,0 +1,45 @@
+﻿<Window x:Class="ReportTransfert.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        DataContext="{Binding Path=Main, Source={StaticResource Locator}}"
+        Title="SQL Server Reporting Services - Transfert tools" Height="603" Width="698">
+    <Grid>
+        <ToolBar x:Name="toolBar" VerticalAlignment="Top" Height="31">
+            <Button Command="{Binding Path=OpenCommand}" ToolTip="Open a remote connection fo SSRS.">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="Images/Open.png" />
+                    <TextBlock Text="Open" Margin="5,2" />
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding Path=RefreshCommand}" ToolTip="Refresh the list of reports.">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="Images/Refresh.png" />
+                    <TextBlock Text="Refresh" Margin="5,2" />
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding Path=DownloadCommand}" ToolTip="Download all selected files to a local folder.">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="Images/Download.png" />
+                    <TextBlock Text="Download" Margin="5,2" />                    
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding Path=UploadCommand}" ToolTip="Upload files to a selected remote folder." >
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="Images/Upload.png" />
+                    <TextBlock Text="Upload" Margin="5,2" />
+                </StackPanel>
+            </Button>
+        </ToolBar>
+        <StatusBar Height="20" VerticalAlignment="Bottom">
+            <TextBlock Text="{Binding Path=ServerUrl}"/>
+            <ProgressBar x:Name="pgbTransfert" Height="10" Width="100" Minimum="0" Maximum="100" Value="{Binding Path=ProgressPercent}" IsIndeterminate="{Binding Path=IsWaiting}"/>
+        </StatusBar>
+        <DataGrid x:Name="dgvReports" ItemsSource="{Binding Path=Reports}" SelectionChanged="dgvReports_SelectionChanged" Margin="10,36,10,25" CanUserReorderColumns="False" AutoGenerateColumns="False" EnableRowVirtualization="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Type" Binding="{Binding Path=TypeName}" />
+                <DataGridTextColumn Header="Report" Binding="{Binding Path=Name}" />
+                <DataGridTextColumn Header="Modified" Binding="{Binding Path=ModifiedDate}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
