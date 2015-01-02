@@ -3,6 +3,8 @@ Ssrs Report Transfert
 
 This tool can download all resources stored in SQL Server Reporting Services 2008 (and more).
 
+![alt tag](https://raw.github.com/dvoituron/SsrsReportTransfert/master/Sample.png)
+
 To download
 -----------
 - First, connect you to your source SSRS Server.
