@@ -16,3 +16,5 @@ To upload
 - First, connect you to your target SSRS Server.
 - Next, click on a remote folder where reports will be store.
 - Next, click on Upload button to put all select reports to your remote folder.
+
+This project is developing in C# and [Microsoft Framework 4.5](http://www.microsoft.com/download/details.aspx?id=30653)
