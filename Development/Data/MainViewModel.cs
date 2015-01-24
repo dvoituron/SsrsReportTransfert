@@ -12,7 +12,7 @@ namespace ReportTransfert.Data
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private ServerCredentials _credentials = new ServerCredentials() { ServerUrl = "http://localhost/ReportServer", Login = "user", Password = "password" };
+        private ServerCredentials _credentials = new ServerCredentials();
         private ReportServices _service = null;
         private bool _isWaiting;
         private IEnumerable<Report> _selectedReports = null;
@@ -29,10 +29,10 @@ namespace ReportTransfert.Data
         {
             this.Reports = new ObservableCollection<Report>();
 
-            this.OpenCommand = new RelayCommand((p) => this.OpenExecute());
-            this.RefreshCommand = new RelayCommand((p) => this.RefreshExecute(), (p) => !String.IsNullOrEmpty(this.ServerUrl));
-            this.DownloadCommand = new RelayCommand((p) => this.DownloadExecute(), (p) => _selectedReports != null && _selectedReports.Count() > 0);
-            this.UploadCommand = new RelayCommand((p) => this.UploadExecute(), (p) => _selectedReports != null && _selectedReports.Count() == 1 && _selectedReports.First().IsFolder);
+            this.OpenCommand = new RelayCommand(async (p) => await this.OpenExecute(p));
+            this.RefreshCommand = new RelayCommand(async (p) => await this.RefreshExecute(), (p) => !String.IsNullOrEmpty(this.ServerUrl));
+            this.DownloadCommand = new RelayCommand(async (p) => await this.DownloadExecute(p), (p) => _selectedReports != null && _selectedReports.Count() > 0);
+            this.UploadCommand = new RelayCommand(async (p) => await this.UploadExecute(p), (p) => _selectedReports != null && _selectedReports.Count() == 1 && _selectedReports.First().IsFolder);
         }
 
         #endregion
@@ -127,9 +127,9 @@ namespace ReportTransfert.Data
         /// Open the Login window and connect to the SSRS server
         /// </summary>
         /// <param name="parameter"></param>
-        private async Task OpenExecute()
+        private async Task OpenExecute(object parameter)
         {
-            LoginWindow frmLogin = new LoginWindow(_credentials);
+            LoginWindow frmLogin = new LoginWindow(parameter as Window, _credentials);
             if (frmLogin.ShowDialog() == true)
             {
                 _credentials = frmLogin.Credentials;
@@ -168,13 +168,16 @@ namespace ReportTransfert.Data
         /// <summary>
         /// Ask a directory to download all selected reports
         /// </summary>
-        private async Task DownloadExecute()
+        private async Task DownloadExecute(object parameter)
         {
             int reportsCount = this.SelectedReports.Count();
             if (reportsCount > 0)
             {
 
                 DownloadWindow frmDownload = new DownloadWindow();
+                frmDownload.Owner = parameter as Window;
+                frmDownload.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
                 if (frmDownload.ShowDialog() == true)
                 {
                     try
@@ -217,7 +220,7 @@ namespace ReportTransfert.Data
             }
         }
 
-        private async Task UploadExecute()
+        private async Task UploadExecute(object parameters)
         {
             Report remoteFolder = this.SelectedReports.FirstOrDefault();
 
@@ -227,7 +230,7 @@ namespace ReportTransfert.Data
                 dlg.DefaultExt = ".rdl";
                 dlg.Filter = "Reports (*.rdl)|*.rdl|All files (*.*)|*.*";
                 dlg.Multiselect = true;
-
+                
                 if (dlg.ShowDialog() == true)
                 {
                     try

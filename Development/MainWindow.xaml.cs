@@ -29,6 +29,8 @@ namespace ReportTransfert
         public MainWindow()
         {
             InitializeComponent();
+
+            this.Title = String.Format("SQL Server Reporting Services - Transfert tools - v.{0}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
         }
 
         /// <summary>

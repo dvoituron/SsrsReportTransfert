@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReportTransfert.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,7 +22,7 @@ namespace ReportTransfert
         /// <summary>
         /// Initializes a new instance of Login Window
         /// </summary>
-        public LoginWindow() : this(null)
+        public LoginWindow() : this(null, null)
         {
             
         }
@@ -29,10 +30,14 @@ namespace ReportTransfert
         /// <summary>
         /// Initializes a new instance of Login Window
         /// </summary>
+        /// <param name="owner"></param>
         /// <param name="credentials"></param>
-        public LoginWindow(ServerCredentials credentials)
+        public LoginWindow(Window owner, ServerCredentials credentials)
         {
             InitializeComponent();
+
+            this.Owner = owner;
+            this.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
 
             if (credentials != null)
             {
@@ -63,6 +68,7 @@ namespace ReportTransfert
                 Password = txtPassword.Password,
                 Domain = txtDomain.Text
             };
+            this.Credentials.SaveToRegistry();
             this.Close();
         }
 
@@ -85,6 +91,15 @@ namespace ReportTransfert
     public class ServerCredentials
     {
         /// <summary>
+        /// Initializes a new instance of ServerCredentials and set default values
+        /// </summary>
+        public ServerCredentials()
+        {
+            // Gets all Login configurations from local registry
+            this.LoadFromRegistry();
+        }
+
+        /// <summary>
         /// Gets or sets the Server URL (http://xxx:80/ReportServer)
         /// </summary>
         public string ServerUrl { get; set; }
@@ -103,5 +118,54 @@ namespace ReportTransfert
         /// Gets or sets the domain to connect to ServerUrl
         /// </summary>
         public string Domain { get; set; }
+
+        /// <summary>
+        /// Load all property values from the local registry
+        /// </summary>
+        public void LoadFromRegistry()
+        {
+            using (Registry registry = new Registry(ReportServices.REGISTRY_APPLICATIONNAME, "Credentials"))
+            {
+                this.ServerUrl = registry.GetValue("ServerUrl");
+                this.Login = registry.GetValue("Login");
+                this.Password = registry.GetValue("Password");
+                this.Domain = registry.GetValue("Domain");
+            }
+
+            // Sets default values
+            if (String.IsNullOrEmpty(this.ServerUrl))
+            {
+                this.ServerUrl = "http://localhost/ReportServer";
+            }
+
+            if (String.IsNullOrEmpty(this.Login))
+            {
+                this.Login = "ReportUser";
+            }
+
+            if (String.IsNullOrEmpty(this.Password))
+            {
+                this.Password = "Password";
+            }
+
+            if (String.IsNullOrEmpty(this.Domain))
+            {
+                this.Domain = String.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Save all property values into the local registry
+        /// </summary>
+        public void SaveToRegistry()
+        {
+            using (Registry registry = new Registry(ReportServices.REGISTRY_APPLICATIONNAME, "Credentials"))
+            {
+                registry.SetValue("ServerUrl", this.ServerUrl);
+                registry.SetValue("Login", this.Login);
+                registry.SetValue("Password", this.Password);
+                registry.SetValue("Domain", this.Domain);
+            }
+        }
     }
 }
