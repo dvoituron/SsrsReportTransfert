@@ -12,6 +12,7 @@ namespace ReportTransfert
     public class ReportServices
     {
         private ReportingService2010SoapClient _service = null;
+        public const string REGISTRY_APPLICATIONNAME = "ReportTransfert";
 
         /// <summary>
         /// Initializes a new instance of ReportServices to retrieve reports,

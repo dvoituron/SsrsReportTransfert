@@ -60,6 +60,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Data\MainViewModel.cs" />
+    <Compile Include="Data\Registry.cs" />
     <Compile Include="Data\RelayCommand.cs" />
     <Compile Include="Data\Report.cs" />
     <Compile Include="Data\ViewModelLocator.cs" />
