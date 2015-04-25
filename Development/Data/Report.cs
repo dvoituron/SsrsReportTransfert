@@ -118,10 +118,18 @@ namespace ReportTransfert.Data
         /// <param name="sourceFile"></param>
         public async System.Threading.Tasks.Task UploadFileInThisFolder(string sourceFile)
         {
-            FileInfo file = new FileInfo(sourceFile);
-            byte[] data = System.IO.File.ReadAllBytes(sourceFile);
+            await this.UploadFileInThisFolder(new FileInfo(sourceFile));
+        }
 
-            string filenameWithoutExtension = file.Name.Substring(0, Convert.ToInt32(file.Name.Length - file.Extension.Length));
+        /// <summary>
+        /// Upload the specified file to this folder
+        /// </summary>
+        /// <param name="sourceFile"></param>
+        public async System.Threading.Tasks.Task UploadFileInThisFolder(FileInfo sourceFile)
+        {
+            byte[] data = System.IO.File.ReadAllBytes(sourceFile.FullName);
+
+            string filenameWithoutExtension = sourceFile.Name.Substring(0, Convert.ToInt32(sourceFile.Name.Length - sourceFile.Extension.Length));
 
             await _service.CreateCatalogItem("Report", filenameWithoutExtension, _catalogitem.Path, data);
         }

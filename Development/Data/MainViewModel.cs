@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace ReportTransfert.Data
 {
@@ -233,37 +234,32 @@ namespace ReportTransfert.Data
             if (remoteFolder != null && remoteFolder.IsFolder)
             {
                 FilesSelectionWindow selection = new FilesSelectionWindow();
-                selection.ShowDialog();
+                if (selection.ShowDialog() == true && ViewModelLocator._filesSelection.SelectedFiles.Count() > 0)
+                {
+                    IEnumerable<FileInfo> files = ViewModelLocator._filesSelection.SelectedFiles;
 
-                //Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-                //dlg.DefaultExt = ".rdl";
-                //dlg.Filter = "Reports (*.rdl)|*.rdl|All files (*.*)|*.*";
-                //dlg.Multiselect = true;
-                
-                //if (dlg.ShowDialog() == true)
-                //{
-                //    try
-                //    {
-                //        int filesCount = dlg.FileNames.Count();
-                //        int n = 0;
-                //        foreach (string file in dlg.FileNames)
-                //        {
-                //            // Progress
-                //            n++;
-                //            this.ProgressPercent = Convert.ToDouble(n) / Convert.ToDouble(filesCount) * 100d;
-                //            DoEvents();
+                    try
+                    {
+                        int filesCount = files.Count();
+                        int n = 0;
+                        foreach (FileInfo file in files)
+                        {
+                            // Progress
+                            n++;
+                            this.ProgressPercent = Convert.ToDouble(n) / Convert.ToDouble(filesCount) * 100d;
+                            DoEvents();
 
-                //            // Upload
-                //            await remoteFolder.UploadFileInThisFolder(file);
-                //        }
+                            // Upload
+                            await remoteFolder.UploadFileInThisFolder(file);
+                        }
 
-                //        MessageBox.Show("Upload completed.", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        this.DisplayException(ex);
-                //    }
-                //}
+                        MessageBox.Show("Upload completed.", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.DisplayException(ex);
+                    }
+                }
             }
             else
             {

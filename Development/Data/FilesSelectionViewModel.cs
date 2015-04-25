@@ -50,6 +50,11 @@ namespace ReportTransfert.Data
         }
 
         /// <summary>
+        /// Gets the Window.DialogResult: True if the user was clicked on OK, False if he was clicked on Cancel.
+        /// </summary>
+        public bool? DialogResult { get; private set; }
+
+        /// <summary>
         /// Gets the command to execute when the user click on OK button
         /// </summary>
         public RelayCommand AcceptCommand { get; private set; }
@@ -111,6 +116,13 @@ namespace ReportTransfert.Data
             Window win = parameter as Window;
             if (win != null)
             {
+                using (Registry registry = new Registry(ReportServices.REGISTRY_APPLICATIONNAME, "Upload"))
+                {
+                    registry.SetValue("FolderBase", this.FolderBase);
+                }
+
+                this.DialogResult = true;
+                win.DialogResult = true;
                 win.Close();
             }
         }
@@ -124,6 +136,8 @@ namespace ReportTransfert.Data
             Window win = parameter as Window;
             if (win != null)
             {
+                this.DialogResult = false;
+                win.DialogResult = false;
                 win.Close();
             }
         }

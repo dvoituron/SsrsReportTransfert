@@ -7,6 +7,8 @@ namespace ReportTransfert.Data
 {
     public class ViewModelLocator
     {
+        internal static MainViewModel _mainViewModel = null;
+        internal static FilesSelectionViewModel _filesSelection;
 
         /// <summary>
         /// Gets a reference to the Main ViewModel
@@ -15,7 +17,11 @@ namespace ReportTransfert.Data
         {
             get
             {
-                return new MainViewModel();
+                if (ViewModelLocator._mainViewModel == null)
+                {
+                    _mainViewModel = new MainViewModel();
+                }
+                return _mainViewModel;
             }
         }
 
@@ -26,7 +32,11 @@ namespace ReportTransfert.Data
         {
             get
             {
-                return new FilesSelectionViewModel();
+                if (ViewModelLocator._filesSelection == null)
+                {
+                    _filesSelection = new FilesSelectionViewModel();
+                }
+                return _filesSelection;
             }
         }
     }
