@@ -123,7 +123,7 @@ namespace ReportTransfert
         public async System.Threading.Tasks.Task<System.Xml.XmlDocument> GetReportDefinition(string itemPath)
         {
             TrustedUserHeader header = new TrustedUserHeader();
-
+            
             return await System.Threading.Tasks.Task.Factory.FromAsync<System.Xml.XmlDocument>(
                 _service.BeginGetItemDefinition(header, itemPath, null, null),
                 (ar) =>

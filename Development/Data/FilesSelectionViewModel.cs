@@ -22,14 +22,14 @@ namespace ReportTransfert.Data
         /// </summary>
         public FilesSelectionViewModel()
         {
+            this.Files = new ObservableCollection<FileInfo>();
+            this.AcceptCommand = new RelayCommand(async (p) => await this.AcceptExecute(p), (p) => this.SelectedFiles != null && this.SelectedFiles.Count() > 0);
+            this.CancelCommand = new RelayCommand(async (p) => await this.CancelExecute(p));
+
             using (Registry registry = new Registry(ReportServices.REGISTRY_APPLICATIONNAME, "Upload"))
             {
                 this.FolderBase = registry.GetValue("FolderBase");
             }
-
-            this.Files = new ObservableCollection<FileInfo>();
-            this.AcceptCommand = new RelayCommand(async (p) => await this.AcceptExecute(p), (p) => this.SelectedFiles != null && this.SelectedFiles.Count() > 0);
-            this.CancelCommand = new RelayCommand(async (p) => await this.CancelExecute(p));
         }
 
         /// <summary>
