@@ -18,5 +18,16 @@ namespace ReportTransfert.Data
                 return new MainViewModel();
             }
         }
+
+        /// <summary>
+        /// Gets a reference to the Main ViewModel
+        /// </summary>
+        public FilesSelectionViewModel FilesSelection
+        {
+            get
+            {
+                return new FilesSelectionViewModel();
+            }
+        }
     }
 }

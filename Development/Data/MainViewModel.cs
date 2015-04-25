@@ -119,6 +119,7 @@ namespace ReportTransfert.Data
             }
 
         }
+        
         #endregion
 
         #region COMMANDS
@@ -220,41 +221,49 @@ namespace ReportTransfert.Data
             }
         }
 
+        /// <summary>
+        /// Uploads files to the selected Remote folder.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         private async Task UploadExecute(object parameters)
         {
             Report remoteFolder = this.SelectedReports.FirstOrDefault();
 
             if (remoteFolder != null && remoteFolder.IsFolder)
             {
-                Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-                dlg.DefaultExt = ".rdl";
-                dlg.Filter = "Reports (*.rdl)|*.rdl|All files (*.*)|*.*";
-                dlg.Multiselect = true;
+                FilesSelectionWindow selection = new FilesSelectionWindow();
+                selection.ShowDialog();
+
+                //Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+                //dlg.DefaultExt = ".rdl";
+                //dlg.Filter = "Reports (*.rdl)|*.rdl|All files (*.*)|*.*";
+                //dlg.Multiselect = true;
                 
-                if (dlg.ShowDialog() == true)
-                {
-                    try
-                    {
-                        int filesCount = dlg.FileNames.Count();
-                        int n = 0;
-                        foreach (string file in dlg.FileNames)
-                        {
-                            // Progress
-                            n++;
-                            this.ProgressPercent = Convert.ToDouble(n) / Convert.ToDouble(filesCount) * 100d;
-                            DoEvents();
+                //if (dlg.ShowDialog() == true)
+                //{
+                //    try
+                //    {
+                //        int filesCount = dlg.FileNames.Count();
+                //        int n = 0;
+                //        foreach (string file in dlg.FileNames)
+                //        {
+                //            // Progress
+                //            n++;
+                //            this.ProgressPercent = Convert.ToDouble(n) / Convert.ToDouble(filesCount) * 100d;
+                //            DoEvents();
 
-                            // Upload
-                            await remoteFolder.UploadFileInThisFolder(file);
-                        }
+                //            // Upload
+                //            await remoteFolder.UploadFileInThisFolder(file);
+                //        }
 
-                        MessageBox.Show("Upload completed.", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.DisplayException(ex);
-                    }
-                }
+                //        MessageBox.Show("Upload completed.", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        this.DisplayException(ex);
+                //    }
+                //}
             }
             else
             {
