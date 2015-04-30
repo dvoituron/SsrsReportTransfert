@@ -15,9 +15,9 @@
         <TextBox x:Name="ttFolder" Height="23" Margin="61,14,39,0" TextWrapping="Wrap" Text="{Binding FolderBase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
         <DataGrid x:Name="dgvFiles" Margin="10,42,10,35" SelectionChanged="dgvFiles_SelectionChanged" CanUserReorderColumns="False" AutoGenerateColumns="False" EnableRowVirtualization="False" IsReadOnly="True" ItemsSource="{Binding Files}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Type" Binding="{Binding Path=Extension}" />
-                <DataGridTextColumn Header="Name" Binding="{Binding Path=FullName}" />
-                <DataGridTextColumn Header="Modified" Binding="{Binding Path=LastWriteTime}" />
+                <DataGridTextColumn Header="Type" Binding="{Binding Path=Type}" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Path=RelativeName}" />
+                <DataGridTextColumn Header="Modified" Binding="{Binding Path=Modified}" />
             </DataGrid.Columns>
         </DataGrid>
         <Button x:Name="btnSelectFolder" Content="..." HorizontalAlignment="Right" Margin="0,14,10,0" VerticalAlignment="Top" Width="24" Height="23" Click="btnSelectFolder_Click"/>

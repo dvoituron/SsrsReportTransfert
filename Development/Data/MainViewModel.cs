@@ -236,14 +236,14 @@ namespace ReportTransfert.Data
                 FilesSelectionWindow selection = new FilesSelectionWindow();
                 if (selection.ShowDialog() == true && ViewModelLocator.Locator.FilesSelection.SelectedFiles.Count() > 0)
                 {
-                    IEnumerable<FileInfo> files = ViewModelLocator.Locator.FilesSelection.SelectedFiles;
+                    IEnumerable<FilesSelectionItem> files = ViewModelLocator.Locator.FilesSelection.SelectedFiles;
                     DirectoryInfo folderBase = new DirectoryInfo(ViewModelLocator.Locator.FilesSelection.FolderBase);
 
                     try
                     {
                         int filesCount = files.Count();
                         int n = 0;
-                        foreach (FileInfo file in files)
+                        foreach (FilesSelectionItem file in files)
                         {
                             // Progress
                             n++;
@@ -251,7 +251,7 @@ namespace ReportTransfert.Data
                             DoEvents();
 
                             // Upload
-                            await remoteFolder.UploadFileInThisFolder(file, folderBase);
+                            await remoteFolder.UploadFileInThisFolder(file.File, folderBase);
                         }
 
                         MessageBox.Show("Upload completed.", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);

@@ -89,7 +89,7 @@ namespace ReportTransfert.Data
             if (this.IsDownloadable)
             {
                 string filename = targetPath;
-                string extension = this.GetFileExtensionFromReportResource(this.ReportType);
+                string extension = Report.GetFileExtensionFromReportResource(this.ReportType);
 
                 if (filename.EndsWith("\\"))
                 {
@@ -116,7 +116,7 @@ namespace ReportTransfert.Data
         {
             byte[] data = System.IO.File.ReadAllBytes(sourceFile.FullName);
 
-            await _service.CreateCatalogItem(this.GetReportResourceName(type), sourceFile, relativeTo, _catalogitem.Path, data);
+            await _service.CreateCatalogItem(Report.GetReportResourceName(type), sourceFile, relativeTo, _catalogitem.Path, data);
         }
         /// <summary>
         /// Upload the specified file to this folder (based on the file extension)
@@ -125,7 +125,7 @@ namespace ReportTransfert.Data
         /// <param name="relativeTo"></param>
         public async System.Threading.Tasks.Task UploadFileInThisFolder(FileInfo sourceFile, DirectoryInfo relativeTo)
         {
-            await this.UploadFileInThisFolder(sourceFile, relativeTo, this.GetResourceTypeFromExtension(sourceFile));
+            await this.UploadFileInThisFolder(sourceFile, relativeTo, Report.GetResourceTypeFromExtension(sourceFile));
         }
         
         /// <summary>
@@ -162,7 +162,7 @@ namespace ReportTransfert.Data
         {
             get
             {
-                return this.GetReportResourceEnum(_catalogitem.TypeName);
+                return Report.GetReportResourceEnum(_catalogitem.TypeName);
             }
         }
 
@@ -171,7 +171,7 @@ namespace ReportTransfert.Data
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public string GetFileExtensionFromReportResource(ReportResource type)
+        public static string GetFileExtensionFromReportResource(ReportResource type)
         {
             switch (type)
             {
@@ -199,9 +199,9 @@ namespace ReportTransfert.Data
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
-        public ReportResource GetResourceTypeFromExtension(FileInfo file)
+        public static ReportResource GetResourceTypeFromExtension(FileInfo file)
         {
-            return this.GetResourceTypeFromExtension(file.Extension);
+            return Report.GetResourceTypeFromExtension(file.Extension);
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace ReportTransfert.Data
         /// </summary>
         /// <param name="fileExtension"></param>
         /// <returns></returns>
-        public ReportResource GetResourceTypeFromExtension(string fileExtension)
+        public static ReportResource GetResourceTypeFromExtension(string fileExtension)
         {
             switch (fileExtension)
             {
@@ -239,7 +239,7 @@ namespace ReportTransfert.Data
         {
             get 
             {
-                ReportResource reportType = this.GetReportResourceEnum(_catalogitem.TypeName);
+                ReportResource reportType = Report.GetReportResourceEnum(_catalogitem.TypeName);
 
                 if (reportType == ReportResource.Component ||
                     reportType == ReportResource.DataSource ||
@@ -259,11 +259,29 @@ namespace ReportTransfert.Data
         }
 
         /// <summary>
+        /// Return True if this resource is a folder
+        /// </summary>
+        public bool IsFolder
+        {
+            get
+            {
+                if (_catalogitem.TypeName == "Folder")
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
         /// Returns the report type name.
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        private string GetReportResourceName(ReportResource type)
+        public static string GetReportResourceName(ReportResource type)
         {
             switch (type)
             {
@@ -291,7 +309,7 @@ namespace ReportTransfert.Data
         /// </summary>
         /// <param name="reportTypeName"></param>
         /// <returns></returns>
-        private ReportResource GetReportResourceEnum(string reportTypeName)
+        public static ReportResource GetReportResourceEnum(string reportTypeName)
         {
             switch (reportTypeName)
             {
@@ -315,20 +333,55 @@ namespace ReportTransfert.Data
         }
 
         /// <summary>
-        /// Return True if this resource is a folder
+        /// Returns the sourcefile relative to the folder.
+        /// Example: GetRelativePath(@"c:\foo\bar\blop\blap.txt", @"c:\foo\bar\") => @"blop\blap.txt"
         /// </summary>
-        public bool IsFolder
+        /// <param name="sourcefile"></param>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public static string GetRelativePath(string sourcefile, string folder)
         {
-            get
+            Uri pathUri = new Uri(sourcefile);
+            // Folders must end in a slash
+            if (!folder.EndsWith(Path.DirectorySeparatorChar.ToString()))
             {
-                if (_catalogitem.TypeName == "Folder")
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                folder += Path.DirectorySeparatorChar;
+            }
+            Uri folderUri = new Uri(folder);
+            return Uri.UnescapeDataString(folderUri.MakeRelativeUri(pathUri).ToString().Replace('/', Path.DirectorySeparatorChar));
+        }
+
+        /// <summary>
+        /// Returns the list of sub-folders and filename of sourcefile relative to the folder.
+        /// Example: GetRelativePath(@"c:\foo\bar\blop\blap.txt", @"c:\foo\") => string[] { "bar", "blop", "blap.txt" }
+        /// </summary>
+        /// <param name="sourcefile"></param>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public static string[] GetRelativePathSplitted(string sourcefile, string folder)
+        {
+            return Report.GetRelativePath(sourcefile, folder).Split('\\');
+        }
+
+        /// <summary>
+        /// Returns the list of sub-folders and filename of sourcefile relative to the folder.
+        /// Example: GetRelativePath(@"c:\foo\bar\blop\blap.txt", @"c:\foo\") => string[] { "bar", "blop" }
+        /// </summary>
+        /// <param name="sourcefile"></param>
+        /// <param name="folder"></param>
+        /// <param name="removeFileName"></param>
+        /// <returns></returns>
+        public static string[] GetRelativePathSplitted(string sourcefile, string folder, bool removeFileName)
+        {
+            string[] result = Report.GetRelativePath(sourcefile, folder).Split('\\');
+
+            if (!removeFileName)
+            {
+                return result;
+            }
+            else
+            {
+                return result.Take(result.Length - 1).ToArray();
             }
         }
     }

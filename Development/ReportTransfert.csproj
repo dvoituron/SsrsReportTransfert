@@ -60,6 +60,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\FilesSelectionItem.cs" />
     <Compile Include="Data\FilesSelectionViewModel.cs" />
     <Compile Include="Data\MainViewModel.cs" />
     <Compile Include="Data\Registry.cs" />

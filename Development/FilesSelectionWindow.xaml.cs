@@ -37,7 +37,7 @@ namespace ReportTransfert
         private void dgvFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Data.FilesSelectionViewModel context = this.DataContext as Data.FilesSelectionViewModel;
-            context.SelectedFiles = dgvFiles.SelectedItems.Cast<System.IO.FileInfo>();
+            context.SelectedFiles = dgvFiles.SelectedItems.Cast<Data.FilesSelectionItem>();
         }
 
         /// <summary>

@@ -13,7 +13,7 @@ namespace ReportTransfert.Data
     public class FilesSelectionViewModel : INotifyPropertyChanged
     {
         private string _folderBase;
-        private IEnumerable<FileInfo> _selectedFiles = null;
+        private IEnumerable<FilesSelectionItem> _selectedFiles = null;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -22,7 +22,7 @@ namespace ReportTransfert.Data
         /// </summary>
         public FilesSelectionViewModel()
         {
-            this.Files = new ObservableCollection<FileInfo>();
+            this.Files = new ObservableCollection<FilesSelectionItem>();
             this.AcceptCommand = new RelayCommand(async (p) => await this.AcceptExecute(p), (p) => this.SelectedFiles != null && this.SelectedFiles.Count() > 0);
             this.CancelCommand = new RelayCommand(async (p) => await this.CancelExecute(p));
 
@@ -67,12 +67,12 @@ namespace ReportTransfert.Data
         /// <summary>
         /// Gets a list with all files found in FolderBase and sub-folders.
         /// </summary>
-        public ObservableCollection<FileInfo> Files { get; private set; }
+        public ObservableCollection<FilesSelectionItem> Files { get; private set; }
 
         /// <summary>
         /// Gets or sets all selected files
         /// </summary>
-        public IEnumerable<FileInfo> SelectedFiles
+        public IEnumerable<FilesSelectionItem> SelectedFiles
         {
             get
             {
@@ -97,11 +97,11 @@ namespace ReportTransfert.Data
 
             if (baseFolder.Exists && baseFolder.FullName.Length > 3)
             {
-                this.Files = new ObservableCollection<FileInfo>(baseFolder.EnumerateFiles("*.*", SearchOption.AllDirectories));
+                this.Files = new ObservableCollection<FilesSelectionItem>(baseFolder.EnumerateFiles("*.*", SearchOption.AllDirectories).Select(f => new FilesSelectionItem(f, baseFolder)));
             }
             else
             {
-                this.Files = new ObservableCollection<FileInfo>();
+                this.Files = new ObservableCollection<FilesSelectionItem>();
             }
 
             this.OnPropertyChanged("Files");

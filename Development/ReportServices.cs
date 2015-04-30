@@ -131,7 +131,7 @@ namespace ReportTransfert
         {
             TrustedUserHeader header = new TrustedUserHeader();
 
-            string[] folders = this.GetRelativePathSplitted(filename, relativeToFolder, true);
+            string[] folders = Data.Report.GetRelativePathSplitted(filename, relativeToFolder, true);
             string parentCompleted = parent;
 
             foreach (string folder in folders)
@@ -187,60 +187,7 @@ namespace ReportTransfert
                     doc.Load(stream);
                     return doc;
                 });
-        }
-
-        /// <summary>
-        /// Returns the sourcefile relative to the folder.
-        /// Example: GetRelativePath(@"c:\foo\bar\blop\blap.txt", @"c:\foo\bar\") => @"blop\blap.txt"
-        /// </summary>
-        /// <param name="sourcefile"></param>
-        /// <param name="folder"></param>
-        /// <returns></returns>
-        private string GetRelativePath(string sourcefile, string folder)
-        {
-            Uri pathUri = new Uri(sourcefile);
-            // Folders must end in a slash
-            if (!folder.EndsWith(Path.DirectorySeparatorChar.ToString()))
-            {
-                folder += Path.DirectorySeparatorChar;
-            }
-            Uri folderUri = new Uri(folder);
-            return Uri.UnescapeDataString(folderUri.MakeRelativeUri(pathUri).ToString().Replace('/', Path.DirectorySeparatorChar));
-        }
-
-        /// <summary>
-        /// Returns the list of sub-folders and filename of sourcefile relative to the folder.
-        /// Example: GetRelativePath(@"c:\foo\bar\blop\blap.txt", @"c:\foo\") => string[] { "bar", "blop", "blap.txt" }
-        /// </summary>
-        /// <param name="sourcefile"></param>
-        /// <param name="folder"></param>
-        /// <returns></returns>
-        private string[] GetRelativePathSplitted(string sourcefile, string folder)
-        {
-            return this.GetRelativePath(sourcefile, folder).Split('\\');
-        }
-
-        /// <summary>
-        /// Returns the list of sub-folders and filename of sourcefile relative to the folder.
-        /// Example: GetRelativePath(@"c:\foo\bar\blop\blap.txt", @"c:\foo\") => string[] { "bar", "blop" }
-        /// </summary>
-        /// <param name="sourcefile"></param>
-        /// <param name="folder"></param>
-        /// <param name="removeFileName"></param>
-        /// <returns></returns>
-        private string[] GetRelativePathSplitted(string sourcefile, string folder, bool removeFileName)
-        {
-            string[] result = this.GetRelativePath(sourcefile, folder).Split('\\');
-
-            if (!removeFileName)
-            {
-                return result;
-            }
-            else
-            {
-                return result.Take(result.Length - 1).ToArray();
-            }
-        }
+        }     
 
     }
 }
