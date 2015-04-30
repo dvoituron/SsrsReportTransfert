@@ -63,7 +63,7 @@ namespace ReportTransfert.Data
                     file.Directory.Create();
                 }
 
-                if (this.IsReport)
+                if (this.IsReportResource)
                 {
                     System.Xml.XmlDocument doc = await _service.GetReportDefinition(_catalogitem.Path);
                     doc.Save(targetFile);
@@ -123,9 +123,7 @@ namespace ReportTransfert.Data
         {
             byte[] data = System.IO.File.ReadAllBytes(sourceFile.FullName);
 
-            string filenameWithoutExtension = sourceFile.Name.Substring(0, Convert.ToInt32(sourceFile.Name.Length - sourceFile.Extension.Length));
-
-            await _service.CreateCatalogItem(this.GetReportResourceName(type), filenameWithoutExtension, _catalogitem.Path, data);
+            await _service.CreateCatalogItem(this.GetReportResourceName(type), sourceFile.Name, _catalogitem.Path, data);
         }
         /// <summary>
         /// Upload the specified file to this folder (based on the file extension)
@@ -142,13 +140,17 @@ namespace ReportTransfert.Data
         /// <remarks>
         /// See http://msdn.microsoft.com/en-us/library/reportservice2010.reportingservice2010.listitemtypes.aspx
         /// </remarks>
-        public bool IsReport
+        public bool IsReportResource
         {
             get
             {
                 ReportResource reportType = this.ReportType;
 
-                if (reportType == ReportResource.Report || reportType == ReportResource.LinkedReport)
+                if (reportType == ReportResource.LinkedReport ||
+                    reportType == ReportResource.DataSet ||
+                    reportType == ReportResource.LinkedReport ||
+                    reportType == ReportResource.Report ||
+                    reportType == ReportResource.DataSource)
                 {
                     return true;
                 }
@@ -286,7 +288,7 @@ namespace ReportTransfert.Data
                 case ReportResource.DataSet:
                     return "DataSet";
                 default:
-                    return string.Empty;
+                    return "Resource";
             }
         }
 

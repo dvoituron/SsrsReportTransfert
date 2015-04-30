@@ -74,6 +74,7 @@
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MimeSniffer.cs" />
     <Compile Include="ReportServices.cs" />
     <Compile Include="Service References\ReportService2010\Reference.cs">
       <AutoGen>True</AutoGen>

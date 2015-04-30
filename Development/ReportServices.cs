@@ -96,16 +96,19 @@ namespace ReportTransfert
         /// Upload the specified data content to a remote report (parent/name).
         /// </summary>
         /// <param name="dataType">Must be "Report" to upload a report content</param>
-        /// <param name="name"></param>
+        /// <param name="sourceFile"></param>
         /// <param name="parent"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async System.Threading.Tasks.Task CreateCatalogItem(string dataType, string name, string parent, byte[] data)
-        { 
+        public async System.Threading.Tasks.Task CreateCatalogItem(string dataType, string filename, string parent, byte[] data)
+        {
+            FileInfo sourceFile = new FileInfo(filename);
             TrustedUserHeader header = new TrustedUserHeader();
+            Property prop1 = new Property() { Name = "MimeType", Value = MimeTypes.MimeTypeMap.GetMimeType(sourceFile.Extension) };
+            string filenameWithoutExtension = sourceFile.Name.Substring(0, Convert.ToInt32(sourceFile.Name.Length - sourceFile.Extension.Length));
 
             await System.Threading.Tasks.Task.Factory.FromAsync(
-                _service.BeginCreateCatalogItem(header, dataType, name, parent, true, data, null, null, null),
+                _service.BeginCreateCatalogItem(header, dataType, filenameWithoutExtension, parent, true, data, String.IsNullOrEmpty(prop1.Value) ? null : new Property[] { prop1 }, null, null),
                 (ar) =>
                 {
                     CatalogItem catalogItem;
