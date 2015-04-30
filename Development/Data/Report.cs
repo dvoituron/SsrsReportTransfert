@@ -110,30 +110,24 @@ namespace ReportTransfert.Data
         /// Upload the specified file to this folder
         /// </summary>
         /// <param name="sourceFile"></param>
-        public async System.Threading.Tasks.Task UploadFileInThisFolder(string sourceFile, ReportResource type)
-        {
-            await this.UploadFileInThisFolder(new FileInfo(sourceFile), type);
-        }
-
-        /// <summary>
-        /// Upload the specified file to this folder
-        /// </summary>
-        /// <param name="sourceFile"></param>
-        public async System.Threading.Tasks.Task UploadFileInThisFolder(FileInfo sourceFile, ReportResource type)
+        /// <param name="relativeTo"></param>
+        /// <param name="type"></param>
+        public async System.Threading.Tasks.Task UploadFileInThisFolder(FileInfo sourceFile, DirectoryInfo relativeTo, ReportResource type)
         {
             byte[] data = System.IO.File.ReadAllBytes(sourceFile.FullName);
 
-            await _service.CreateCatalogItem(this.GetReportResourceName(type), sourceFile.Name, _catalogitem.Path, data);
+            await _service.CreateCatalogItem(this.GetReportResourceName(type), sourceFile, relativeTo, _catalogitem.Path, data);
         }
         /// <summary>
         /// Upload the specified file to this folder (based on the file extension)
         /// </summary>
-        public async System.Threading.Tasks.Task UploadFileInThisFolder(FileInfo sourceFile)
+        /// <param name="sourceFile"></param>
+        /// <param name="relativeTo"></param>
+        public async System.Threading.Tasks.Task UploadFileInThisFolder(FileInfo sourceFile, DirectoryInfo relativeTo)
         {
-            await this.UploadFileInThisFolder(sourceFile, this.GetResourceTypeFromExtension(sourceFile));
+            await this.UploadFileInThisFolder(sourceFile, relativeTo, this.GetResourceTypeFromExtension(sourceFile));
         }
-
-
+        
         /// <summary>
         /// Returns true of the report is a report... or False if the report is a resource (image, ...)
         /// </summary>

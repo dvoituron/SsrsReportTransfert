@@ -234,9 +234,10 @@ namespace ReportTransfert.Data
             if (remoteFolder != null && remoteFolder.IsFolder)
             {
                 FilesSelectionWindow selection = new FilesSelectionWindow();
-                if (selection.ShowDialog() == true && ViewModelLocator._filesSelection.SelectedFiles.Count() > 0)
+                if (selection.ShowDialog() == true && ViewModelLocator.Locator.FilesSelection.SelectedFiles.Count() > 0)
                 {
-                    IEnumerable<FileInfo> files = ViewModelLocator._filesSelection.SelectedFiles;
+                    IEnumerable<FileInfo> files = ViewModelLocator.Locator.FilesSelection.SelectedFiles;
+                    DirectoryInfo folderBase = new DirectoryInfo(ViewModelLocator.Locator.FilesSelection.FolderBase);
 
                     try
                     {
@@ -250,7 +251,7 @@ namespace ReportTransfert.Data
                             DoEvents();
 
                             // Upload
-                            await remoteFolder.UploadFileInThisFolder(file);
+                            await remoteFolder.UploadFileInThisFolder(file, folderBase);
                         }
 
                         MessageBox.Show("Upload completed.", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);

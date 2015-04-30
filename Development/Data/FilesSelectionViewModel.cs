@@ -13,7 +13,7 @@ namespace ReportTransfert.Data
     public class FilesSelectionViewModel : INotifyPropertyChanged
     {
         private string _folderBase;
-        private IEnumerable<FileInfo> _selectedFiles;
+        private IEnumerable<FileInfo> _selectedFiles = null;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -7,8 +7,8 @@ namespace ReportTransfert.Data
 {
     public class ViewModelLocator
     {
-        internal static MainViewModel _mainViewModel = null;
-        internal static FilesSelectionViewModel _filesSelection;
+        private static MainViewModel _mainViewModel = null;
+        private static FilesSelectionViewModel _filesSelection;
 
         /// <summary>
         /// Gets a reference to the Main ViewModel
@@ -37,6 +37,17 @@ namespace ReportTransfert.Data
                     _filesSelection = new FilesSelectionViewModel();
                 }
                 return _filesSelection;
+            }
+        }
+
+        /// <summary>
+        /// Gets a reference to the current locator
+        /// </summary>
+        public static ViewModelLocator Locator
+        {
+            get
+            {
+                return System.Windows.Application.Current.Resources["Locator"] as ViewModelLocator;
             }
         }
     }

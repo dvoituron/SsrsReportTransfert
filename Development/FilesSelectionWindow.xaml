@@ -12,7 +12,7 @@
         <Button x:Name="btnOK" Content="OK" HorizontalAlignment="Right" Margin="0,0,90,10" Width="75" Height="20" VerticalAlignment="Bottom" IsDefault="True" CommandParameter="{Binding ElementName=window, Mode=OneWay}" Command="{Binding AcceptCommand, Mode=OneWay}"/>
         <Button x:Name="btnCancel" Content="Cancel" HorizontalAlignment="Right" Margin="0,0,10,10" Width="75" Height="20" VerticalAlignment="Bottom" IsCancel="True" CommandParameter="{Binding ElementName=window, Mode=OneWay}" Command="{Binding CancelCommand, Mode=OneWay}"/>
         <Label x:Name="lblFolder" Content="Folder:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="ttFolder" Height="23" Margin="61,14,10,0" TextWrapping="Wrap" Text="{Binding FolderBase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
+        <TextBox x:Name="ttFolder" Height="23" Margin="61,14,39,0" TextWrapping="Wrap" Text="{Binding FolderBase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top"/>
         <DataGrid x:Name="dgvFiles" Margin="10,42,10,35" SelectionChanged="dgvFiles_SelectionChanged" CanUserReorderColumns="False" AutoGenerateColumns="False" EnableRowVirtualization="False" IsReadOnly="True" ItemsSource="{Binding Files}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Type" Binding="{Binding Path=Extension}" />
@@ -20,6 +20,7 @@
                 <DataGridTextColumn Header="Modified" Binding="{Binding Path=LastWriteTime}" />
             </DataGrid.Columns>
         </DataGrid>
+        <Button x:Name="btnSelectFolder" Content="..." HorizontalAlignment="Right" Margin="0,14,10,0" VerticalAlignment="Top" Width="24" Height="23" Click="btnSelectFolder_Click"/>
 
     </Grid>
 </Window>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ namespace ReportTransfert
         public FilesSelectionWindow()
         {
             InitializeComponent();
+            Data.ViewModelLocator.Locator.FilesSelection.SelectedFiles = null;
         }
 
         /// <summary>
@@ -36,6 +38,29 @@ namespace ReportTransfert
         {
             Data.FilesSelectionViewModel context = this.DataContext as Data.FilesSelectionViewModel;
             context.SelectedFiles = dgvFiles.SelectedItems.Cast<System.IO.FileInfo>();
+        }
+
+        /// <summary>
+        /// Select a base folder
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnSelectFolder_Click(object sender, RoutedEventArgs e)
+        {
+            var filesSelection = Data.ViewModelLocator.Locator.FilesSelection;
+            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+
+            // Default path
+            if (new DirectoryInfo(filesSelection.FolderBase).Exists)
+            {
+                dialog.SelectedPath = filesSelection.FolderBase;
+            }
+
+            // Open dialogbox
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                filesSelection.FolderBase = dialog.SelectedPath;
+            }
         }
     }
 }
