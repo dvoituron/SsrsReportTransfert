@@ -25,7 +25,7 @@ namespace ReportTransfert
         public ReportServices(string reportServerUrl, string login, string password, string domain)
         {
             string url = reportServerUrl;
-            if (!url.EndsWith("/") && !url.EndsWith(".asmx")) 
+            if (!url.EndsWith("/") && !url.EndsWith(".asmx"))
                 url += "/ReportService2010.asmx";
             else if (!url.EndsWith(".asmx"))
                 url += "ReportService2010.asmx";
@@ -65,7 +65,7 @@ namespace ReportTransfert
 
             return await System.Threading.Tasks.Task.Factory.FromAsync<CatalogItem[]>(
                 _service.BeginListChildren(header, path, true, null, null),
-                (ar) => 
+                (ar) =>
                 {
                     CatalogItem[] items = null;
                     _service.EndListChildren(ar, out items);
@@ -79,7 +79,7 @@ namespace ReportTransfert
         /// <param name="itemPath"></param>
         /// <returns></returns>
         public async System.Threading.Tasks.Task<byte[]> GetResourceContents(string itemPath)
-        { 
+        {
             TrustedUserHeader header = new TrustedUserHeader();
 
             return await System.Threading.Tasks.Task.Factory.FromAsync<byte[]>(
@@ -96,16 +96,21 @@ namespace ReportTransfert
         /// Upload the specified data content to a remote report (parent/name).
         /// </summary>
         /// <param name="dataType">Must be "Report" to upload a report content</param>
-        /// <param name="name"></param>
+        /// <param name="sourceFile"></param>
         /// <param name="parent"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async System.Threading.Tasks.Task CreateCatalogItem(string dataType, string name, string parent, byte[] data)
-        { 
+        public async System.Threading.Tasks.Task CreateCatalogItem(string dataType, FileInfo sourceFile, DirectoryInfo relativeTo, string remoteParent, byte[] data)
+        {
             TrustedUserHeader header = new TrustedUserHeader();
+            Property prop1 = new Property() { Name = "MimeType", Value = MimeTypes.MimeTypeMap.GetMimeType(sourceFile.Extension) };
+            string filenameWithoutExtension = sourceFile.Name.Substring(0, Convert.ToInt32(sourceFile.Name.Length - sourceFile.Extension.Length));
+
+            string parent = await this.CreateSubFolders(sourceFile.FullName, relativeTo.FullName, remoteParent);
 
             await System.Threading.Tasks.Task.Factory.FromAsync(
-                _service.BeginCreateCatalogItem(header, dataType, name, parent, true, data, null, null, null),
+                _service.BeginCreateCatalogItem(header, dataType, filenameWithoutExtension, parent, true, data, String.IsNullOrEmpty(prop1.Value) ? null : new Property[] { prop1 }, null, null)
+                ,
                 (ar) =>
                 {
                     CatalogItem catalogItem;
@@ -113,6 +118,52 @@ namespace ReportTransfert
                     _service.EndCreateCatalogItem(ar, out catalogItem, out warning);
                     return data;
                 });
+        }
+
+        /// <summary>
+        /// Creates all subfolders to store the filename in a parent folder, relative to a base folder.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="relativeToFolder"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public async System.Threading.Tasks.Task<string> CreateSubFolders(string filename, string relativeToFolder, string parent)
+        {
+            TrustedUserHeader header = new TrustedUserHeader();
+
+            string[] folders = Data.Report.GetRelativePathSplitted(filename, relativeToFolder, true);
+            string parentCompleted = parent;
+
+            foreach (string folder in folders)
+            {
+
+                await System.Threading.Tasks.Task.Factory.FromAsync(
+                _service.BeginCreateFolder(header, folder, parentCompleted, null, null, null)
+                ,
+                (ar) =>
+                {
+                    try
+                    {
+                        CatalogItem catalogItem;
+                        _service.EndCreateFolder(ar, out catalogItem);
+                    }
+                    catch (System.ServiceModel.FaultException ex)
+                    {
+                        if (ex.Message.Contains("Microsoft.ReportingServices.Diagnostics.Utilities.ItemAlreadyExistsException"))
+                        {
+                            // Bypass if the folder already exits
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                });
+
+                parentCompleted += "/" + folder;
+            }
+
+            return parentCompleted;
         }
 
         /// <summary>
@@ -136,7 +187,7 @@ namespace ReportTransfert
                     doc.Load(stream);
                     return doc;
                 });
-        }        
-    }
+        }     
 
+    }
 }

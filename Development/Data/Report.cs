@@ -63,7 +63,7 @@ namespace ReportTransfert.Data
                     file.Directory.Create();
                 }
 
-                if (this.IsReport)
+                if (this.IsReportResource)
                 {
                     System.Xml.XmlDocument doc = await _service.GetReportDefinition(_catalogitem.Path);
                     doc.Save(targetFile);
@@ -89,20 +89,14 @@ namespace ReportTransfert.Data
             if (this.IsDownloadable)
             {
                 string filename = targetPath;
+                string extension = Report.GetFileExtensionFromReportResource(this.ReportType);
 
                 if (filename.EndsWith("\\"))
                 {
                     filename = filename.Remove(filename.Length - 1);
                 }
 
-                if (this.IsReport)
-                {
-                    filename += _catalogitem.Path.Replace('/', '\\') + ".rdl";
-                }
-                else
-                {
-                    filename += _catalogitem.Path.Replace('/', '\\');
-                }
+                filename += _catalogitem.Path.Replace('/', '\\') + extension;
 
                 await this.DownloadToFile(filename);
 
@@ -116,28 +110,41 @@ namespace ReportTransfert.Data
         /// Upload the specified file to this folder
         /// </summary>
         /// <param name="sourceFile"></param>
-        public async System.Threading.Tasks.Task UploadFileInThisFolder(string sourceFile)
+        /// <param name="relativeTo"></param>
+        /// <param name="type"></param>
+        public async System.Threading.Tasks.Task UploadFileInThisFolder(FileInfo sourceFile, DirectoryInfo relativeTo, ReportResource type)
         {
-            FileInfo file = new FileInfo(sourceFile);
-            byte[] data = System.IO.File.ReadAllBytes(sourceFile);
+            byte[] data = System.IO.File.ReadAllBytes(sourceFile.FullName);
 
-            string filenameWithoutExtension = file.Name.Substring(0, Convert.ToInt32(file.Name.Length - file.Extension.Length));
-
-            await _service.CreateCatalogItem("Report", filenameWithoutExtension, _catalogitem.Path, data);
+            await _service.CreateCatalogItem(Report.GetReportResourceName(type), sourceFile, relativeTo, _catalogitem.Path, data);
         }
-
+        /// <summary>
+        /// Upload the specified file to this folder (based on the file extension)
+        /// </summary>
+        /// <param name="sourceFile"></param>
+        /// <param name="relativeTo"></param>
+        public async System.Threading.Tasks.Task UploadFileInThisFolder(FileInfo sourceFile, DirectoryInfo relativeTo)
+        {
+            await this.UploadFileInThisFolder(sourceFile, relativeTo, Report.GetResourceTypeFromExtension(sourceFile));
+        }
+        
         /// <summary>
         /// Returns true of the report is a report... or False if the report is a resource (image, ...)
         /// </summary>
         /// <remarks>
         /// See http://msdn.microsoft.com/en-us/library/reportservice2010.reportingservice2010.listitemtypes.aspx
         /// </remarks>
-        public bool IsReport
+        public bool IsReportResource
         {
             get
             {
-                if (_catalogitem.TypeName == "Report" || 
-                    _catalogitem.TypeName == "LinkedReport")
+                ReportResource reportType = this.ReportType;
+
+                if (reportType == ReportResource.LinkedReport ||
+                    reportType == ReportResource.DataSet ||
+                    reportType == ReportResource.LinkedReport ||
+                    reportType == ReportResource.Report ||
+                    reportType == ReportResource.DataSource)
                 {
                     return true;
                 }
@@ -149,19 +156,98 @@ namespace ReportTransfert.Data
         }
 
         /// <summary>
+        /// Gets the current report resource type.
+        /// </summary>
+        public ReportResource ReportType
+        {
+            get
+            {
+                return Report.GetReportResourceEnum(_catalogitem.TypeName);
+            }
+        }
+
+        /// <summary>
+        /// Returns Extension (with comma) from Report Resource Type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static string GetFileExtensionFromReportResource(ReportResource type)
+        {
+            switch (type)
+            {
+                case ReportResource.Component:
+                    return ".rdc";
+                case ReportResource.DataSource:
+                    return ".rds";
+                case ReportResource.Model:
+                    return ".rdm";
+                case ReportResource.LinkedReport:
+                    return ".rdr";
+                case ReportResource.Report:
+                    return ".rdl";
+                case ReportResource.Resource:
+                    return ".rdx";
+                case ReportResource.DataSet:
+                    return ".rsd";
+                default:
+                    return "";
+            }
+        }
+
+        /// <summary>
+        /// Returns the ReportResource from File Extension
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public static ReportResource GetResourceTypeFromExtension(FileInfo file)
+        {
+            return Report.GetResourceTypeFromExtension(file.Extension);
+        }
+
+        /// <summary>
+        /// Returns the ReportResource from File Extension
+        /// </summary>
+        /// <param name="fileExtension"></param>
+        /// <returns></returns>
+        public static ReportResource GetResourceTypeFromExtension(string fileExtension)
+        {
+            switch (fileExtension)
+            {
+                case ".rdc":
+                    return ReportResource.Component;
+                case ".rds":
+                    return ReportResource.DataSource;
+                case ".rdm":
+                    return ReportResource.Model;
+                case ".rdr":
+                    return ReportResource.LinkedReport;
+                case ".rdx":
+                    return ReportResource.Resource;
+                case ".rdl":
+                    return ReportResource.Report;
+                case ".rsd":
+                    return ReportResource.DataSet;
+                default:
+                    return ReportResource.Unknown;
+            }
+        }
+
+        /// <summary>
         /// Return True if this resource is downloadable
         /// </summary>
         public bool IsDownloadable
         {
             get 
             {
-                if (_catalogitem.TypeName == "Component" ||
-                    _catalogitem.TypeName == "DataSource" ||
-                    _catalogitem.TypeName == "Model" ||
-                    _catalogitem.TypeName == "LinkedReport" ||
-                    _catalogitem.TypeName == "Report" ||
-                    _catalogitem.TypeName == "Resource" ||
-                    _catalogitem.TypeName == "DataSet")
+                ReportResource reportType = Report.GetReportResourceEnum(_catalogitem.TypeName);
+
+                if (reportType == ReportResource.Component ||
+                    reportType == ReportResource.DataSource ||
+                    reportType == ReportResource.Model ||
+                    reportType == ReportResource.LinkedReport ||
+                    reportType == ReportResource.Report ||
+                    reportType == ReportResource.Resource ||
+                    reportType == ReportResource.DataSet)
                 {
                     return true;
                 }
@@ -189,5 +275,129 @@ namespace ReportTransfert.Data
                 }
             }
         }
+
+        /// <summary>
+        /// Returns the report type name.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static string GetReportResourceName(ReportResource type)
+        {
+            switch (type)
+            {
+                case ReportResource.Component:
+                    return "Component";
+                case ReportResource.DataSource:
+                    return "DataSource";
+                case ReportResource.Model:
+                    return "Model";
+                case ReportResource.LinkedReport:
+                    return "LinkedReport";
+                case ReportResource.Report:
+                    return "Report";
+                case ReportResource.Resource:
+                    return "Resource";
+                case ReportResource.DataSet:
+                    return "DataSet";
+                default:
+                    return "Resource";
+            }
+        }
+
+        /// <summary>
+        /// Returns the Type of Report from report type
+        /// </summary>
+        /// <param name="reportTypeName"></param>
+        /// <returns></returns>
+        public static ReportResource GetReportResourceEnum(string reportTypeName)
+        {
+            switch (reportTypeName)
+            {
+                case "Component":
+                    return ReportResource.Component;
+                case "DataSource":
+                    return ReportResource.DataSource;
+                case "Model":
+                    return ReportResource.Model;
+                case "LinkedReport":
+                    return ReportResource.LinkedReport;
+                case "Report":
+                    return ReportResource.Report;
+                case "Resource":
+                    return ReportResource.Resource;
+                case "DataSet":
+                    return ReportResource.DataSet;
+                default:
+                    return ReportResource.Unknown;
+            }
+        }
+
+        /// <summary>
+        /// Returns the sourcefile relative to the folder.
+        /// Example: GetRelativePath(@"c:\foo\bar\blop\blap.txt", @"c:\foo\bar\") => @"blop\blap.txt"
+        /// </summary>
+        /// <param name="sourcefile"></param>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public static string GetRelativePath(string sourcefile, string folder)
+        {
+            Uri pathUri = new Uri(sourcefile);
+            // Folders must end in a slash
+            if (!folder.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            {
+                folder += Path.DirectorySeparatorChar;
+            }
+            Uri folderUri = new Uri(folder);
+            return Uri.UnescapeDataString(folderUri.MakeRelativeUri(pathUri).ToString().Replace('/', Path.DirectorySeparatorChar));
+        }
+
+        /// <summary>
+        /// Returns the list of sub-folders and filename of sourcefile relative to the folder.
+        /// Example: GetRelativePath(@"c:\foo\bar\blop\blap.txt", @"c:\foo\") => string[] { "bar", "blop", "blap.txt" }
+        /// </summary>
+        /// <param name="sourcefile"></param>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public static string[] GetRelativePathSplitted(string sourcefile, string folder)
+        {
+            return Report.GetRelativePath(sourcefile, folder).Split('\\');
+        }
+
+        /// <summary>
+        /// Returns the list of sub-folders and filename of sourcefile relative to the folder.
+        /// Example: GetRelativePath(@"c:\foo\bar\blop\blap.txt", @"c:\foo\") => string[] { "bar", "blop" }
+        /// </summary>
+        /// <param name="sourcefile"></param>
+        /// <param name="folder"></param>
+        /// <param name="removeFileName"></param>
+        /// <returns></returns>
+        public static string[] GetRelativePathSplitted(string sourcefile, string folder, bool removeFileName)
+        {
+            string[] result = Report.GetRelativePath(sourcefile, folder).Split('\\');
+
+            if (!removeFileName)
+            {
+                return result;
+            }
+            else
+            {
+                return result.Take(result.Length - 1).ToArray();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Type of report resource
+    /// </summary>
+    public enum ReportResource
+    {
+        Unknown,
+        Component,
+        DataSource,
+        Model,
+        LinkedReport,
+        Report,
+        Resource,
+        DataSet
     }
 }

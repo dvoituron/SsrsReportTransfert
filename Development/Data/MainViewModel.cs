@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace ReportTransfert.Data
 {
@@ -119,6 +120,7 @@ namespace ReportTransfert.Data
             }
 
         }
+        
         #endregion
 
         #region COMMANDS
@@ -220,24 +222,28 @@ namespace ReportTransfert.Data
             }
         }
 
+        /// <summary>
+        /// Uploads files to the selected Remote folder.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         private async Task UploadExecute(object parameters)
         {
             Report remoteFolder = this.SelectedReports.FirstOrDefault();
 
             if (remoteFolder != null && remoteFolder.IsFolder)
             {
-                Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-                dlg.DefaultExt = ".rdl";
-                dlg.Filter = "Reports (*.rdl)|*.rdl|All files (*.*)|*.*";
-                dlg.Multiselect = true;
-                
-                if (dlg.ShowDialog() == true)
+                FilesSelectionWindow selection = new FilesSelectionWindow();
+                if (selection.ShowDialog() == true && ViewModelLocator.Locator.FilesSelection.SelectedFiles.Count() > 0)
                 {
+                    IEnumerable<FilesSelectionItem> files = ViewModelLocator.Locator.FilesSelection.SelectedFiles;
+                    DirectoryInfo folderBase = new DirectoryInfo(ViewModelLocator.Locator.FilesSelection.FolderBase);
+
                     try
                     {
-                        int filesCount = dlg.FileNames.Count();
+                        int filesCount = files.Count();
                         int n = 0;
-                        foreach (string file in dlg.FileNames)
+                        foreach (FilesSelectionItem file in files)
                         {
                             // Progress
                             n++;
@@ -245,7 +251,7 @@ namespace ReportTransfert.Data
                             DoEvents();
 
                             // Upload
-                            await remoteFolder.UploadFileInThisFolder(file);
+                            await remoteFolder.UploadFileInThisFolder(file.File, folderBase);
                         }
 
                         MessageBox.Show("Upload completed.", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);

@@ -42,6 +42,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -59,6 +60,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\FilesSelectionItem.cs" />
+    <Compile Include="Data\FilesSelectionViewModel.cs" />
     <Compile Include="Data\MainViewModel.cs" />
     <Compile Include="Data\Registry.cs" />
     <Compile Include="Data\RelayCommand.cs" />
@@ -67,9 +70,13 @@
     <Compile Include="DownloadWindow.xaml.cs">
       <DependentUpon>DownloadWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FilesSelectionWindow.xaml.cs">
+      <DependentUpon>FilesSelectionWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MimeSniffer.cs" />
     <Compile Include="ReportServices.cs" />
     <Compile Include="Service References\ReportService2010\Reference.cs">
       <AutoGen>True</AutoGen>
@@ -77,6 +84,10 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Page Include="DownloadWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FilesSelectionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
