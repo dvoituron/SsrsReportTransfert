@@ -5,8 +5,7 @@ This tool can download all resources stored in SQL Server Reporting Services 200
 
 Download [ReportTransfert.exe - v.1.2.0](https://raw.github.com/dvoituron/SsrsReportTransfert/master/Releases/v1.2.0/ReportTransfert.exe)
 
-[![Report Transfet](https://img.youtube.com/vi/TYh9avchpow/0.jpg)](https://youtu.be/TYh9avchpow)
-Click to start the video
+[![Report Transfert](https://github.com/dvoituron/SsrsReportTransfert/blob/master/Sample.png)](https://youtu.be/TYh9avchpow)
 
 To download reports
 -------------------
